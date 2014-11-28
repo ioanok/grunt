@@ -1,11 +1,13 @@
 # [grunt boilerplate]
+===============
 
 ## Quick start
 
 1. install node.js and NPM
 2. install the grunt command line interface by running `npm install -g grunt-cli`    
 3. create package.json file with the content below
-    `{
+
+    {
         "name": "grunt-project",
         "version": "0.1.0",
         "devDependencies": {
@@ -21,7 +23,7 @@
             "grunt-processhtml": "^0.3.3",
             "load-grunt-tasks": "^1.0.0"
         }
-    }`
+    }
 
 4. run `npm install` // to install the dependencies from package.json
 5. install locally grunt plugins with command `npm install grunt-plugin-name --save-dev`    
