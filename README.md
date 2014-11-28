@@ -26,4 +26,4 @@
     }
 
 4. run `npm install` // to install the dependencies from package.json
-5. install locally grunt plugins with command `npm install grunt-plugin-name --save-dev`    
+5. install additionally grunt plugins with command `npm install grunt-plugin-name --save-dev` - this will add plugin package in package.json automatically    
