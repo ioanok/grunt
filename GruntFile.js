@@ -4,9 +4,13 @@
 
 // Gruntfile.js
 
+// dist or build folder - production and development environment
+
 // our wrapper function (required by grunt and its plugins)
 // all configuration goes inside this function - do grunt-related things in here
 module.exports = function(grunt) {
+
+    "use strict";
 
     // Load all grunt modules automagically:
     // make sure you have run npm install so our app can find them
@@ -39,6 +43,7 @@ module.exports = function(grunt) {
 
             scripts: {
                 src: [ 'js/build' ]
+                // src: [BUILD_DIR_JS + '*.js', '!' + BUILD_FILE_JS]
             },
         },
 
@@ -52,6 +57,7 @@ module.exports = function(grunt) {
         },
 
         // Concatenation of all CSS and JS files:
+        // this task will only concat files. useful for when in development and debugging as the file will be readable.
         concat: {
             // 2. Configuration for concatinating files goes here.
             scripts: {
@@ -113,7 +119,9 @@ module.exports = function(grunt) {
             build: {
                 options: {
                     banner: '/*\n <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> \n*/\n',
-                    mangle: false
+                    compress : true,
+                    mangle: false,
+                    preserveComments : false
                 },
                 src: 'js/build/production.js',
                 dest: 'js/build/production.min.js'
@@ -125,6 +133,7 @@ module.exports = function(grunt) {
                         'path/to/theme/js/global.js'
                     ]
                 }*/
+                // BUILD_FILE_JS: [BUILD_DIR_JS + '*.js']
             }
         },
 
