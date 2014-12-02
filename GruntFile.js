@@ -78,6 +78,9 @@ module.exports = function(grunt) {
 
         // CSS Min, for compressing and concatenating vendor CSS scripts:
         cssmin: {
+            options: {
+                banner: '/*\n <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> \n*/\n'
+            },
             build: {
                 files: {
                     'css/build/production.min.css': [ 'css/build/**/*.css' ]
@@ -95,10 +98,21 @@ module.exports = function(grunt) {
             }
         },
 
+        // Configure jshint to validate js files
+        jshint: {
+            options: {
+                reporter: require('jshint-stylish') // use jshint-stylish to make our errors look and read good
+            },
+
+            // when this task is run, lint the Gruntfile and all js files in src
+            build: ['GruntFile.js', 'js/**/*.js']
+        },
+
         // Uglify, for compressing and concatenating JS scripts (own and vendor):
         uglify: {
             build: {
                 options: {
+                    banner: '/*\n <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> \n*/\n',
                     mangle: false
                 },
                 src: 'js/build/production.js',
@@ -146,7 +160,7 @@ module.exports = function(grunt) {
                 tasks: ['stylesheets'],
                 options: {
                     spawn: false,
-                },
+                }
             },
 
             scripts: {
@@ -154,7 +168,7 @@ module.exports = function(grunt) {
                 tasks: ['scripts'],
                 options: {
                     spawn: false,
-                },
+                }
             }
         }
 
@@ -194,4 +208,9 @@ module.exports = function(grunt) {
         'default',
         [ 'build', 'watch' ]
     );
+
+    // this task will only run the dev configuration
+    //grunt.registerTask('dev', ['jshint:dev']);
+    // only run production configuration
+    //grunt.registerTask('production', ['jshint:production']);
 };
