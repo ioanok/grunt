@@ -19,5 +19,5 @@ grunt
 ```
 6. install additionally grunt plugins with command 
 ```
-npm install grunt-plugin-name --save-dev // this will add plugin package in package.json automatically
+npm install grunt-plugin-name --save-dev // add plugin package in package.json automatically
 ```    
