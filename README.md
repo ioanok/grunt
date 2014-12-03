@@ -3,7 +3,10 @@
 ### Quick start
 
 ##### - install node.js and NPM on your machine
-##### - install the grunt command line interface by running `npm install -g grunt-cli` globally
+##### - install globally the grunt command line interface by running 
+```
+npm install -g grunt-cli
+```
 ##### - clone the repository:    
 ```
 git clone https://github.com/ioanok/grunt
