@@ -306,5 +306,6 @@ textarea {
         color: #000000;
         text-align: left;
         background-size: cover;
+        border-radius: 3px;
     }
 }

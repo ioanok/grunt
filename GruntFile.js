@@ -2,73 +2,86 @@
  * Created by ioan on 27.11.2014.
  */
 
-// Gruntfile.js
-
-// dist or build folder - production and development environment
-
-// our wrapper function (required by grunt and its plugins)
-// all configuration goes inside this function - do grunt-related things in here
+// Our wrapper function - required by grunt and its plugins
 module.exports = function(grunt) {
 
-    "use strict";
-
-    // Load all grunt modules automagically:
-    // make sure you have run npm install so our app can find them
+    // Load all grunt modules automatically: make sure you have run npm install so our app can find them
     require('load-grunt-tasks')(grunt);
 
-    // 1. All configuration goes here
+    // Some constants for various paths and files to be used by the task configurations
+    var BUILD_DIR = 'build/';
+    var BUILD_DIR_JS = 'js/' + BUILD_DIR;
+    var BUILD_DIR_CSS = 'css/' + BUILD_DIR;
+    var BUILD_DIR_IMG = 'img/' + BUILD_DIR;
+
+    var BUILD_FILE_JS = BUILD_DIR_JS + 'app.js';
+    var BUILD_FILE_JS_MIN = BUILD_DIR_JS + 'app.min.js';
+    var BUILD_FILE_CSS = BUILD_DIR_CSS + 'style.css';
+    var BUILD_FILE_CSS_MIN = BUILD_DIR_CSS + 'style.min.css';
+
+    var SRC_DIR = '';
+    var SRC_DIR_JS = SRC_DIR + 'js/';
+    var SRC_DIR_CSS = SRC_DIR + 'css/';
+    var SRC_FILES_JS = SRC_DIR_JS + '*.js';
+    var SRC_FILES_CSS = SRC_DIR_CSS + '*.css';
+
     grunt.initConfig({
 
-        // get the configuration info from package.json
-        // this way we can use things like name and version (pkg.name)
+        // Get the configuration info from package.json
         pkg: grunt.file.readJSON('package.json'),
 
+        // Wipe the build directory clean
+        clean: {
+            build: {
+                src: [ BUILD_DIR ]
+            },
+
+            stylesheets: {
+                src: [ BUILD_DIR_CSS ]
+            },
+
+            scripts: {
+                src: [ BUILD_DIR_JS ]
+            },
+
+            images: {
+                src: [ BUILD_DIR_IMG ]
+            }
+        },
+
+        // Copy files into build directory
         copy: {
             build: {
-                cwd: 'source',
+                cwd: SRC_DIR,
                 src: ['**'],
-                dest: 'build',
+                dest: BUILD_DIR,
                 expand: true
             }
         },
 
-        clean: {
-            build: {
-                src: [ 'build' ]
-            },
-
-            stylesheets: {
-                src: [ 'css/build' ]
-            },
-
-            scripts: {
-                src: [ 'js/build' ]
-                // src: [BUILD_DIR_JS + '*.js', '!' + BUILD_FILE_JS]
-            },
-        },
-
+        // Configure autoprefixing for compiled output css
         autoprefixer: {
             build: {
                 expand: true,
-                cwd: 'css',
+                cwd: BUILD_DIR_CSS,
                 src: [ '**/*.css' ],
-                dest: 'css'
+                dest: BUILD_DIR_CSS
             }
         },
 
-        // Concatenation of all CSS and JS files:
-        // this task will only concat files. useful for when in development and debugging as the file will be readable.
+        // Concatenation of all CSS and JS files: this task will only concat files; useful for when in development and debugging as the file will be readable.
+        // If some scripts depend upon eachother, make sure to list them here in order rather than just using the '*' wildcard.
         concat: {
-            // 2. Configuration for concatinating files goes here.
             scripts: {
                 src: [
                     'js/vendor/*.js', // All JS in the vendor folder
                     'js/plugins.js',  // This specific file
                     'js/main.js'  // This specific file
                 ],
-                dest: 'js/build/production.js'
+                dest: BUILD_FILE_JS
 
-                //'build/application.js': [ 'build/**/*.js' ]
+                // src: [BUILD_DIR_JS + '*.js'],
+                // dest: BUILD_FILE_JS
             },
 
             stylesheets: {
@@ -76,9 +89,12 @@ module.exports = function(grunt) {
                     'css/normalize.css',
                     'css/main.css',
                 ],
-                dest: 'css/build/production.css'
+                dest: BUILD_FILE_CSS
 
-                //'css/build/production.css': [ 'cs/**/*.css'
+                // 'css/build/style.css': [ 'cs/**/*.css']
+                // OR
+                // src: [BUILD_DIR_CSS + '*.css'],
+                // dest: BUILD_FILE_CSS
             }
         },
 
@@ -88,19 +104,13 @@ module.exports = function(grunt) {
                 banner: '/*\n <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> \n*/\n'
             },
             build: {
-                files: {
-                    'css/build/production.min.css': [ 'css/build/**/*.css' ]
-                }
+                //files: {
+                  //  BUILD_FILE_CSS: [ BUILD_FILE_CSS ]
+                  // BUILD_FILE_CSS_MIN: [BUILD_DIR_CSS + '/**/*.css']
+                //}
 
-                /*src: 'css/build/production.css',
-                dest: 'css/build/production.min.css'*/
-
-                /*files: {
-                    'tmp/vendor.css' : [
-                        'vendor/one/style.css',
-                        'vendor/two/style.css',
-                    ]
-                }*/
+                src: BUILD_FILE_CSS,
+                dest: BUILD_FILE_CSS_MIN
             }
         },
 
@@ -111,7 +121,7 @@ module.exports = function(grunt) {
             },
 
             // when this task is run, lint the Gruntfile and all js files in src
-            build: ['GruntFile.js', 'js/**/*.js']
+            build: ['GruntFile.js', 'js/main.js']
         },
 
         // Uglify, for compressing and concatenating JS scripts (own and vendor):
@@ -123,17 +133,10 @@ module.exports = function(grunt) {
                     mangle: false,
                     preserveComments : false
                 },
-                src: 'js/build/production.js',
-                dest: 'js/build/production.min.js'
+                src: BUILD_FILE_JS,
+                dest: BUILD_DIR_JS + 'app.min.js'
 
-                /*files: {
-                    'public/path/to/theme/build/scripts.js' : [
-                        'vendor/one/script.js',
-                        'vendor/two/script.js',
-                        'path/to/theme/js/global.js'
-                    ]
-                }*/
-                // BUILD_FILE_JS: [BUILD_DIR_JS + '*.js']
+                // files: { BUILD_FILE_JS: [BUILD_DIR_JS + '*.js'] }
             }
         },
 
@@ -183,18 +186,6 @@ module.exports = function(grunt) {
 
     });
 
-    // 3. Where we tell Grunt we plan to use this plug-in.
-    // make sure you have run npm install so our app can find these
-    /*/grunt.loadNpmTasks('grunt-contrib-copy');
-    grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-autoprefixer');
-    grunt.loadNpmTasks('grunt-contrib-concat');
-    grunt.loadNpmTasks('grunt-contrib-cssmin');
-    grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.loadNpmTasks('grunt-contrib-imagemin');
-    grunt.loadNpmTasks('grunt-contrib-watch');*/
-
-    // 4. Where we tell Grunt what to do when we type "grunt" into the terminal.
     grunt.registerTask(
         'stylesheets',
         'Compiles the stylesheets.',
@@ -204,7 +195,7 @@ module.exports = function(grunt) {
     grunt.registerTask(
         'scripts',
         'Compiles the javascript files.',
-        [ 'concat:scripts', 'uglify' ]
+        [ 'jshint', 'concat:scripts', 'uglify' ]
     );
 
     grunt.registerTask(
