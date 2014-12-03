@@ -134,7 +134,7 @@ module.exports = function(grunt) {
                     preserveComments : false
                 },
                 src: BUILD_FILE_JS,
-                dest: BUILD_DIR_JS + 'app.min.js'
+                dest: BUILD_FILE_JS_MIN
 
                 // files: { BUILD_FILE_JS: [BUILD_DIR_JS + '*.js'] }
             }
@@ -199,18 +199,19 @@ module.exports = function(grunt) {
     );
 
     grunt.registerTask(
-        'build',
-        'Build project',
+        'dev',
+        'Run development configuration',
         [ 'clean', 'stylesheets', 'scripts', 'imagemin' ]
     );
 
     grunt.registerTask(
-        'default',
-        [ 'build', 'watch' ]
+        'build',
+        'run production configuration',
+        [ 'clean', 'stylesheets', 'scripts', 'imagemin', 'processhtml' ]
     );
 
-    // this task will only run the dev configuration
-    //grunt.registerTask('dev', ['jshint:dev']);
-    // only run production configuration
-    //grunt.registerTask('production', ['jshint:production']);
+    grunt.registerTask(
+        'default',
+        [ 'dev', 'watch' ]
+    );
 };
