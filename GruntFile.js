@@ -16,17 +16,20 @@ module.exports = function(grunt) {
 
     var BUILD_FILE_JS = BUILD_DIR_JS + 'app.js';
     var BUILD_FILE_JS_MIN = BUILD_DIR_JS + 'app.min.js';
-    var BUILD_FILE_CSS = BUILD_DIR_CSS + 'style.css';
-    var BUILD_FILE_CSS_MIN = BUILD_DIR_CSS + 'style.min.css';
+    var BUILD_FILE_CSS = BUILD_DIR_CSS + 'styles.css';
+    var BUILD_FILE_CSS_MIN = BUILD_DIR_CSS + 'styles.min.css';
 
     var BUILD_FILE_PROCESS = BUILD_DIR + 'index.html';
 
     var SRC_DIR = 'src/';
     var SRC_DIR_JS = SRC_DIR + 'js/';
     var SRC_DIR_CSS = SRC_DIR + 'css/';
+    var SRC_DIR_LESS = SRC_DIR + 'less/';
     var SRC_DIR_IMG = SRC_DIR + 'img/';
     var SRC_FILES_JS = SRC_DIR_JS + '*.js';
     var SRC_FILES_CSS = SRC_DIR_CSS + '*.css';
+    var SRC_FILE_LESS = SRC_DIR_LESS + 'style.less';
+    var SRC_FILES_LESS = SRC_DIR_LESS + '*.less';
 
     grunt.initConfig({
 
@@ -56,7 +59,7 @@ module.exports = function(grunt) {
         copy: {
             build: {
                 cwd: SRC_DIR,
-                src: ['**', '!index.html.dist'],
+                src: [ '**', '!index.html.dist', '!**/less/**' ],
                 dest: BUILD_DIR,
                 expand: true
             }
@@ -87,9 +90,28 @@ module.exports = function(grunt) {
             stylesheets: {
                 src: [
                     BUILD_DIR_CSS + 'normalize.css',
+                    BUILD_DIR_CSS + 'style.css', // the file resulted from less compilation
                     BUILD_DIR_CSS + 'main.css',
                 ],
                 dest: BUILD_FILE_CSS
+            }
+        },
+
+        // Compile less stylesheets to css. Configure the less compilation for both dev and prod
+        less: {
+            development: {
+                files: {
+                    "build/css/style.css": SRC_FILE_LESS
+                }
+            },
+            production: {
+                options: {
+                    // minify css in prod mode
+                    cleancss: true
+                },
+                files: {
+                    "build/css/style.css": SRC_FILE_LESS
+                }
             }
         },
 
@@ -130,8 +152,6 @@ module.exports = function(grunt) {
                 },
                 src: BUILD_FILE_JS,
                 dest: BUILD_FILE_JS_MIN
-
-                // files: { BUILD_FILE_JS_MIN: [ BUILD_DIR_JS + '*.js' ] }
             }
         },
 
@@ -158,7 +178,7 @@ module.exports = function(grunt) {
         // Watcher configuration:
         watch: {
             stylesheets: {
-                files: [ SRC_DIR_CSS + '**/*.css' ],
+                files: [ SRC_DIR_CSS + '**/*.css', SRC_DIR_LESS + '**/*.less' ],
                 tasks: [ 'stylesheets' ],
                 options: {
                     spawn: false
@@ -189,7 +209,7 @@ module.exports = function(grunt) {
     });
 
     grunt.registerTask('stylesheets', 'Compiles the stylesheets.',
-        [ 'autoprefixer', 'concat:stylesheets', 'cssmin', 'clean:stylesheets' ]
+        [ 'less:development', 'autoprefixer', 'concat:stylesheets', 'cssmin', 'clean:stylesheets' ]
     );
 
     grunt.registerTask('scripts', 'Compiles the javascript files.',
@@ -197,7 +217,7 @@ module.exports = function(grunt) {
     );
 
     grunt.registerTask('build', 'Run production configuration',
-        [ 'clean:build', 'copy:build', 'stylesheets', 'scripts', 'imagemin', 'processhtml' ]
+        [ 'clean:build', 'copy', 'stylesheets', 'scripts', 'imagemin', 'processhtml' ]
     );
 
     grunt.registerTask('default',
