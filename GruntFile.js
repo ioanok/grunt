@@ -10,18 +10,21 @@ module.exports = function(grunt) {
 
     // Some constants for various paths and files to be used by the task configurations
     var BUILD_DIR = 'build/';
-    var BUILD_DIR_JS = 'js/' + BUILD_DIR;
-    var BUILD_DIR_CSS = 'css/' + BUILD_DIR;
-    var BUILD_DIR_IMG = 'img/' + BUILD_DIR;
+    var BUILD_DIR_JS = BUILD_DIR + 'js/';
+    var BUILD_DIR_CSS = BUILD_DIR + 'css/';
+    var BUILD_DIR_IMG = BUILD_DIR + 'img/';
 
     var BUILD_FILE_JS = BUILD_DIR_JS + 'app.js';
     var BUILD_FILE_JS_MIN = BUILD_DIR_JS + 'app.min.js';
     var BUILD_FILE_CSS = BUILD_DIR_CSS + 'style.css';
     var BUILD_FILE_CSS_MIN = BUILD_DIR_CSS + 'style.min.css';
 
-    var SRC_DIR = '';
+    var BUILD_FILE_PROCESS = BUILD_DIR + 'index.html';
+
+    var SRC_DIR = 'src/';
     var SRC_DIR_JS = SRC_DIR + 'js/';
     var SRC_DIR_CSS = SRC_DIR + 'css/';
+    var SRC_DIR_IMG = SRC_DIR + 'img/';
     var SRC_FILES_JS = SRC_DIR_JS + '*.js';
     var SRC_FILES_CSS = SRC_DIR_CSS + '*.css';
 
@@ -37,11 +40,11 @@ module.exports = function(grunt) {
             },
 
             stylesheets: {
-                src: [ BUILD_DIR_CSS ]
+                src: [ BUILD_DIR_CSS + '**/*.css', '!' + BUILD_FILE_CSS, '!' + BUILD_FILE_CSS_MIN ]
             },
 
             scripts: {
-                src: [ BUILD_DIR_JS ]
+                src: [ BUILD_DIR_JS + '**/*.js', '!' +  BUILD_FILE_JS, '!' + BUILD_FILE_JS_MIN ]
             },
 
             images: {
@@ -53,7 +56,7 @@ module.exports = function(grunt) {
         copy: {
             build: {
                 cwd: SRC_DIR,
-                src: ['**'],
+                src: ['**', '!index.html.dist'],
                 dest: BUILD_DIR,
                 expand: true
             }
@@ -74,27 +77,19 @@ module.exports = function(grunt) {
         concat: {
             scripts: {
                 src: [
-                    'js/vendor/*.js', // All JS in the vendor folder
-                    'js/plugins.js',  // This specific file
-                    'js/main.js'  // This specific file
+                    BUILD_DIR_JS + 'vendor/*.js', // All JS in the vendor folder
+                    BUILD_DIR_JS + 'plugins.js',  // This specific file
+                    BUILD_DIR_JS + 'main.js'  // This specific file
                 ],
                 dest: BUILD_FILE_JS
-
-                // src: [BUILD_DIR_JS + '*.js'],
-                // dest: BUILD_FILE_JS
             },
 
             stylesheets: {
                 src: [
-                    'css/normalize.css',
-                    'css/main.css',
+                    BUILD_DIR_CSS + 'normalize.css',
+                    BUILD_DIR_CSS + 'main.css',
                 ],
                 dest: BUILD_FILE_CSS
-
-                // 'css/build/style.css': [ 'cs/**/*.css']
-                // OR
-                // src: [BUILD_DIR_CSS + '*.css'],
-                // dest: BUILD_FILE_CSS
             }
         },
 
@@ -121,7 +116,7 @@ module.exports = function(grunt) {
             },
 
             // when this task is run, lint the Gruntfile and all js files in src
-            build: ['GruntFile.js', 'js/main.js']
+            build: ['GruntFile.js', BUILD_DIR_JS + 'main.js']
         },
 
         // Uglify, for compressing and concatenating JS scripts (own and vendor):
@@ -136,7 +131,7 @@ module.exports = function(grunt) {
                 src: BUILD_FILE_JS,
                 dest: BUILD_FILE_JS_MIN
 
-                // files: { BUILD_FILE_JS: [BUILD_DIR_JS + '*.js'] }
+                // files: { BUILD_FILE_JS_MIN: [ BUILD_DIR_JS + '*.js' ] }
             }
         },
 
@@ -144,9 +139,9 @@ module.exports = function(grunt) {
             dynamic: {
                 files: [{
                     expand: true,
-                    cwd: 'img/',
-                    src: ['**/*.{png,jpg,gif}', '!img/build/**/*.{png,jpg,gif}'],
-                    dest: 'img/build/'
+                    cwd: BUILD_DIR_IMG,
+                    src: [ '**/*.{png,jpg,gif}' ],
+                    dest: BUILD_DIR_IMG
                 }]
             }
         },
@@ -155,63 +150,57 @@ module.exports = function(grunt) {
         processhtml: {
             build: {
                 files: {
-                    'index.html' : ['index.html']
-                    /*'path/to/theme/file.php' : ['path/to/theme/file.php']*/
+                    'build/index.html' : [ 'build/index.html' ]
                 }
             }
         },
 
         // Watcher configuration:
         watch: {
-            options: {
-                livereload: true,
-            },
-
             stylesheets: {
-                files: ['css/*.css', '!css/build/**/*.css'],
-                tasks: ['stylesheets'],
+                files: [ SRC_DIR_CSS + '**/*.css' ],
+                tasks: [ 'stylesheets' ],
                 options: {
-                    spawn: false,
+                    spawn: false
                 }
             },
 
             scripts: {
-                files: ['js/*.js', '!js/build/**/*.js'],
+                files: [ SRC_DIR_JS + '**/*.js' ],
                 tasks: ['scripts'],
+                options: {
+                    spawn: false
+                }
+            },
+
+            images: {
+                files: [ SRC_DIR_IMG + '**/*.{png,jpg,gif}' ],
+                tasks: ['imagemin'],
                 options: {
                     spawn: false,
                 }
+            },
+
+            copy: {
+                files: [ SRC_DIR + '**' ],
+                tasks: [ 'copy' ]
             }
         }
-
     });
 
-    grunt.registerTask(
-        'stylesheets',
-        'Compiles the stylesheets.',
-        [ 'autoprefixer', 'concat:stylesheets', 'cssmin' ]
+    grunt.registerTask('stylesheets', 'Compiles the stylesheets.',
+        [ 'autoprefixer', 'concat:stylesheets', 'cssmin', 'clean:stylesheets' ]
     );
 
-    grunt.registerTask(
-        'scripts',
-        'Compiles the javascript files.',
-        [ 'jshint', 'concat:scripts', 'uglify' ]
+    grunt.registerTask('scripts', 'Compiles the javascript files.',
+        [ 'jshint', 'concat:scripts', 'uglify', 'clean:scripts' ]
     );
 
-    grunt.registerTask(
-        'dev',
-        'Run development configuration',
-        [ 'clean', 'stylesheets', 'scripts', 'imagemin' ]
+    grunt.registerTask('build', 'Run production configuration',
+        [ 'clean:build', 'copy:build', 'stylesheets', 'scripts', 'imagemin', 'processhtml' ]
     );
 
-    grunt.registerTask(
-        'build',
-        'run production configuration',
-        [ 'clean', 'stylesheets', 'scripts', 'imagemin', 'processhtml' ]
-    );
-
-    grunt.registerTask(
-        'default',
-        [ 'dev', 'watch' ]
+    grunt.registerTask('default',
+        [ 'build', 'watch' ]
     );
 };
