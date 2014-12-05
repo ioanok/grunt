@@ -31,7 +31,21 @@ module.exports = function(grunt) {
     var SRC_FILE_LESS = SRC_DIR_LESS + 'style.less';
     var SRC_FILES_LESS = SRC_DIR_LESS + '*.less';
 
+    var globalConfig = {
+        buildDir: 'build/',
+        buildDirJs: 'build/js/',
+        buildDirCss: 'build/css/',
+        buildDirImg: 'build/img/',
+        buildFileJs: 'build/js/app.js',
+        buildFileJsMin: 'build/js/app.min.js',
+        buildFileCss: 'build/css/styles.css',
+        buildFileCssMin: 'build/css/styles.min.css',
+        srcDir: 'src/'
+    };
+
     grunt.initConfig({
+
+        globalConfig: globalConfig,
 
         // Get the configuration info from package.json
         pkg: grunt.file.readJSON('package.json'),
@@ -39,19 +53,19 @@ module.exports = function(grunt) {
         // Wipe the build directory clean
         clean: {
             build: {
-                src: [ BUILD_DIR ]
+                src: [ '<%= globalConfig.buildDir %>' ]
             },
 
             stylesheets: {
-                src: [ BUILD_DIR_CSS + '**/*.css', '!' + BUILD_FILE_CSS, '!' + BUILD_FILE_CSS_MIN ]
+                src: [ '<%= globalConfig.buildDirCss %>**/*.css', '!<%= globalConfig.buildFileCss %>', '!<%= globalConfig.buildFileCssMin %>' ]
             },
 
             scripts: {
-                src: [ BUILD_DIR_JS + '**/*.js', '!' +  BUILD_FILE_JS, '!' + BUILD_FILE_JS_MIN ]
+                src: [ '<%= globalConfig.buildDirJs %>**/*.js', '!<%= globalConfig.buildFileJs %>', '!<%= globalConfig.buildFileJsMin %>' ]
             },
 
             images: {
-                src: [ BUILD_DIR_IMG ]
+                src: [ '<%= globalConfig.buildDirImg %>' ]
             }
         },
 
