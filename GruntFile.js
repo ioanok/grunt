@@ -2,6 +2,8 @@
  * Created by ioan on 27.11.2014.
  */
 
+'use strict';
+
 // Our wrapper function - required by grunt and its plugins
 module.exports = function(grunt) {
 
@@ -152,7 +154,10 @@ module.exports = function(grunt) {
             },
 
             // when this task is run, lint the Gruntfile and all js files in src
-            build: ['GruntFile.js', BUILD_DIR_JS + 'main.js']
+            build: [
+                'GruntFile.js',
+                BUILD_DIR_JS + 'main.js'
+            ]
         },
 
         // Uglify, for compressing and concatenating JS scripts (own and vendor):
